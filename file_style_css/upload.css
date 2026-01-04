@@ -1,0 +1,132 @@
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 30px;
+    color: #0B0B0B;
+}
+.heder_title {
+    text-align: center;
+    font-size: 16px;
+    width: 700px;
+}
+.header_subtitle {
+    text-align: center;
+    font-size: 14px;
+    width: 400px;
+    padding-top: 2px;
+}
+.upload_tabs {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 50px;
+    gap: 15px;
+}
+.upload_tab {
+    all: unset;
+    font-size: 20px;
+    font-weight: bold;
+    color: #ADC0F8FF;      /*Не активний колір по замовчуванню*/
+}
+.upload_tab--active {
+    color: #0060FF;  /*Активний колір*/
+}
+.upload_tab:hover {
+    color: #698DFAFF;
+}
+.upload_form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 50px;
+}
+.upload_dropzone {
+    border: 2px dashed #0060FF;
+    border-radius: 10px;
+    width: 540px;
+    height: 200px;
+    text-align: center;
+}
+.upload_icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 33px;
+}
+.upload_promt {
+    padding-top: 24px;
+    font-size: 14px;
+    color: #0B0B0B;
+    font-weight: normal;
+}
+.upload_info {
+    padding-top: 12px;
+    font-size: 14px;
+    color: #ADC0F8;
+    font-weight: normal;
+}
+.upload_button {
+    padding-top: 30px;
+    text-align: center;
+}
+.upload_button-btn {
+    display: inline-block;
+    width: 540px;
+    height: 40px;
+    cursor: pointer;
+    color: #FFFFFF;
+    background-color: #0060FF;
+    border-radius: 7px;
+    font-weight: bold;
+    line-height: 40px;
+}
+.upload_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 50px;
+    margin-bottom: 159px;
+}
+.upload_group {
+    display: flex;
+    flex-direction: column;
+    width: 540px;
+}
+.upload_title_current {
+    color: #0B0B0B;
+    font-weight: bold;
+    font-size: 16px;
+    padding-bottom: 10px;
+    text-align: left;
+}
+.upload_label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #0060FF;
+    height: 62px;
+    width: 100%;
+    border-radius: 12px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    background-color: #FAFAFA;
+}
+.uploat_input {
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    background-color: transparent;
+    color: #0B0B0B80;
+}
+.upload_copy_btn {
+    width: 59px;
+    height: 30px;
+    background-color: #0060FF;
+    border-radius: 8px;
+    border: none;
+    color: #FFFFFF;
+    font-size: 12px;
+    cursor: pointer;
+}

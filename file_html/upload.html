@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>frontend_pictures</title>
+    <link rel="stylesheet" href="../file_style_css/reset.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../file_style_css/upload.css">
+</head>
+<body>
+
+<div class="header">
+    <h1 class="header_title">Upload Photos</h1>
+    <p class="header_subtitle">Upload selfies, memes, or any fun pictures here.</p>
+</div>
+
+<nav class="upload_tabs">
+    <button class="upload_tab" id="upload-tab-btn">Upload</button>
+    <button class="upload_tab " id="images-tab-btn">Images</button>
+</nav>
+
+<section class="upload_form">
+<div class="upload_dropzone">
+    <div class="upload_icon">
+        <img src="../img/icon/upload-icon.png" alt="icon">
+    </div>
+    <p class="upload_promt">Select a file or drag and drop here</p>
+    <p class="upload_info">Only support .jpg, .png and gif. <br>
+        Maximum file size is 5MB </p>
+    </div>
+
+    <div class="upload_button">
+        <input type="file" id="file-upload" accept="image/*" style="display: none;" multiple>
+        <label for="file-upload" class="upload_button-btn">Browse your file</label>
+    </div>
+
+    <div class="upload_container">
+        <div class="upload_group">
+            <h2 class="upload_title_current">Current Upload</h2>
+            <div class="upload_label">
+                <input type="text" class="uploat_input" placeholder="https://" readonly/>
+                <button class="upload_copy_btn">COPY</button>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="file-list-wrapper">
+
+</section>
+</body>
+<script src="../js/upload.js"></script>
+
+</html>
