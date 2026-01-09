@@ -1,0 +1,148 @@
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 30px;
+    color: #0B0B0B;
+}
+.heder_title {
+    text-align: center;
+    font-size: 16px;
+    width: 700px;
+}
+.header_subtitle {
+    text-align: center;
+    font-size: 14px;
+    width: 400px;
+    padding-top: 2px;
+}
+.upload_tabs {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 50px;
+    gap: 15px;
+}
+.upload_tab {
+    all: unset;
+    font-size: 20px;
+    font-weight: bold;
+    color: #ADC0F8FF;      /*Не активний колір по замовчуванню*/
+}
+.upload_tab--active {
+    color: #0060FF;  /*Активний колір*/
+}
+.upload_tab:hover {
+    color: #698DFAFF;
+}
+
+/*Контейнер для всієї таблиці*/
+.file-list-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 292px;
+}
+/*Загальний стиль для рядка (як заголовка, так і елемента списку)*/
+.file-list-header,
+.file-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eef0f5;
+}
+
+/*Видалити рамку з останнього елемента*/
+.file-list-item:last-child {
+    border-bottom: none;
+}
+
+/*Заголовок списку*/
+.file-list-header {
+    color: #8a96b1;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/*Стилі для колонок*/
+.file-col {
+    display: flex;
+    align-items: center;
+}
+
+.file-col-name {
+    flex-basis: 35%;
+}
+
+.file-col-url {
+    flex-basis: 50%;
+    color: #555;
+    font-size: 14px;
+}
+
+.file-col-delete {
+    flex-basis: 10%;
+    justify-content: center;
+}
+
+/*Значок файлу*/
+.file-icon {
+    color: #0060ff;
+    margin-right: 15px;
+    font-size: 20px;
+}
+.delete-img {
+    width: 32px;
+    height: 32px;
+}
+/*Ім'я файлу*/
+.file-name {
+    color: #333;
+    font-weight: 500;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/*Кнопка delete*/
+.delete-btn {
+    background: transparent;
+    /* ВИДАЛИТИ ФОН, ЗРОБИТИ ЙОГО ПРОЗОРИМ */
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: opacity 0.2s ease;
+    /* Додати плавний перехід для ефекту наведення курсора */
+}
+/* Hover ефект */
+.delete-btn:hover {
+    background: transparent;
+    /* ВИДАЛИТИ ФОН ПРИ НАВЕДЕННІ КУРСОРУ */
+    opacity: 0.7;
+    /* Зробіть значок напівпрозорим для зворотного зв'язку з користувачем */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
