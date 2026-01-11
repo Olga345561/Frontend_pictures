@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateTabStyles = () => {
         const uploadTab = document.getElementById('upload-tab-btn');
         const imagesTab = document.getElementById('images-tab-btn');
-        const storedFile = JSON.parse(localStorage.getItem('uploadedImages')) || [];
+        const storedFiles = JSON.parse(localStorage.getItem('uploadedImages')) || [];
 
         const isImagesPage = window.location.pathname.includes('images.html');
 
@@ -31,14 +31,13 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             uploadTab.classList.add('upload_tab--active');
         }
-
     };
 
-    const handleAndStoreFiles = (file) => {
-        if(!file || file.length === 0) {
+    const handleAndStoreFiles = (files) => {
+        if(!files || files.length === 0) {
             return
         }
-        const storedFile = JSON.parse(localStorage.getItem('uploadedImages')) || [];
+        const storedFiles = JSON.parse(localStorage.getItem('uploadedImages')) || [];
         const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
         const MAX_SIZE_MB = 5;
         const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
@@ -52,8 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const reader = new FileReader();
             reader.onload = (event) => {
                 const fileData = {name: file.name, url: event.target.result};
-                storedFile.push(fileData);
-                localStorage.setItem('uploadedImages', JSON.stringify(storedFile));
+                storedFiles.push(fileData);
+                localStorage.setItem('uploadedImages', JSON.stringify(storedFiles));
                 updateTabStyles();
             };
             reader.readAsDataURL(file);
@@ -64,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentUploadInput) {
                 currentUploadInput.value = `https://sharefile.xyz/${lastFileName}`;
             }
-            alert("File selected successfully! Go to the 'Images' tab to view them.");
+            alert("Files selected successfully! Go to the 'Images' tab to view them.");
         }
     };
 
@@ -84,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    // з цього місця не дописала бо потрібно створити image.html
+
     if (imagesButton) {
         imagesButton.addEventListener('click', () => {
             window.location.href = 'images.html';
