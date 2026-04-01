@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (showcaseButton) {
         showcaseButton.addEventListener('click', function () {
             // Перехід на сторінку завантаження
-            window.location.href = '../file_html/upload.html';
+            window.location.href = '../upload.html';
         });
     }
 });

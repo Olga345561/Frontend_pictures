@@ -1,0 +1,58 @@
+services:
+  app:
+    build: .
+    container_name: image-server-app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app.py:/app/app.py
+      - ./static:/app/static
+      - ./images:/app/images
+      - ./logs:/app/logs
+      - ./backups:/app/backups
+    environment:
+      - IMAGES_DIR=/app/images
+      - LOGS_DIR=/app/logs
+      - STATIC_DIR=/app/static
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=images_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: image-server-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./images:/images:ro
+    depends_on:
+      - app
+    restart: unless-stopped
+
+  db:
+    image: postgres:17
+    container_name: image-server-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=images_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  db_data:
