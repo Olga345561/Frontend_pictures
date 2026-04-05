@@ -11,14 +11,17 @@ body {
     align-items: center;
     padding-top: 30px;
 }
+
 .header_title {
     text-align: center;
     font-size: 16px;
+    max-width: 90%;
     width: 700px;
 }
 .header_subtitle {
     text-align: center;
     font-size: 14px;
+    max-width: 90%;
     width: 400px;
     padding-top: 2px;
 }
@@ -30,7 +33,7 @@ body {
     padding-top: 40px;
 }
 .header_button_btn {
-    position: absolute;
+    position: relative;
     text-transform: uppercase;
     background-color: #0060FF;
     border-radius: 7px;
@@ -52,8 +55,65 @@ body {
     display: block;
 }
 .img {
+    max-width: 100%;
+    height: auto;
     width: 426px;
-    height: 559px;
+    display: block;
+    margin: 0 auto;
     object-fit: cover;
 }
 
+/* кнопки Upload та Images*/
+.nav-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Загальний стиль для посилань */
+.nav-link {
+    text-decoration: none;
+    color: #666;
+    font-size: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.3s ease;
+}
+
+/* Ефект при наведенні */
+.nav-link:hover {
+    color: #007bff;
+}
+
+.nav-link__icon {
+    font-size: 1.2em;
+}
+
+.nav-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+/* АДАПТИВНОСТЬ: */
+@media (max-width: 600px) {
+    .nav-container {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        width: 100%;
+        padding: 0;
+    }
+
+    .nav-link {
+        font-size: 20px;
+    }
+}

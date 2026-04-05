@@ -32,7 +32,7 @@ function updateTabStyles() {
  */
 function registerKeyboardShortcuts(redirectUrl) {
     document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape' || event.key === 'F5') {
+        if (event.key === 'Escape') {
             event.preventDefault();
             window.location.href = redirectUrl;
         }

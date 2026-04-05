@@ -28,7 +28,6 @@ class ImageRepository:
         # Отримуємо з'єднання з поточного потоку
         conn = getattr(_thread_local, 'connection', None)
 
-        # ВИПРАВЛЕНО: замість .closed використовуємо .is_connected()
         if conn is None or not conn.is_connected():
             conn = mysql.connector.connect(**self._config)
             conn.autocommit = False
@@ -37,12 +36,13 @@ class ImageRepository:
 
     def close_connection(self):
         conn = getattr(_thread_local, 'connection', None)
-        # ВИПРАВЛЕНО: перевіряємо чи з'єднання існує та активне
+        # перевіряємо чи з'єднання існує та активне
         if conn and conn.is_connected():
             conn.close()
             _thread_local.connection = None
             logger.info("З'єднання з БД закрито.")
 
+    # створення таблиці в БД
     def init_table(self, retries=5):
         for attempt in range(1, retries + 1):
             try:
@@ -50,10 +50,10 @@ class ImageRepository:
                 cur = conn.cursor()
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS images (
-                        id SERIAL PRIMARY KEY,
+                        id INT AUTO_INCREMENT PRIMARY KEY,
                         filename VARCHAR(255) NOT NULL,
                         original_name VARCHAR(255) NOT NULL,
-                        size INTEGER NOT NULL,
+                        size INT NOT NULL,
                         file_type VARCHAR(10) NOT NULL,
                         upload_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
@@ -63,13 +63,16 @@ class ImageRepository:
                 logger.info('Таблицю images ініціалізовано.')
                 return
             except Exception as e:
-                _thread_local.connection = None
+                # Очищуємо з'єднання при помилці, щоб наступна спроба була "з чистого аркуша"
+                if hasattr(_thread_local, 'connection'):
+                    del _thread_local.connection
                 logger.info('Спроба %d підключення до БД не вдалася: %s', attempt, str(e))
                 if attempt < retries:
                     time.sleep(2)
                 else:
                     raise
 
+    # підрахунок картинок
     def count(self):
         conn = self._get_connection()
         cur = conn.cursor()
@@ -79,6 +82,7 @@ class ImageRepository:
         finally:
             cur.close()
 
+    # витягує з БД та сортує картинки на сторінці
     def list_page(self, limit, offset):
         conn = self._get_connection()
         cur = conn.cursor()
@@ -92,6 +96,7 @@ class ImageRepository:
         finally:
             cur.close()
 
+    # збереження картинок до БД
     def insert(self, filename, original_name, size, file_type):
         conn = self._get_connection()
         cur = conn.cursor()
@@ -107,6 +112,7 @@ class ImageRepository:
         finally:
             cur.close()
 
+    # видалення з БД
     def delete_by_filename(self, filename):
         conn = self._get_connection()
         cur = conn.cursor()
@@ -119,6 +125,7 @@ class ImageRepository:
         finally:
             cur.close()
 
+    # шукає в таблиці MySQL по імені
     def find_filename_by_id(self, image_id):
         conn = self._get_connection()
         cur = conn.cursor()
@@ -129,6 +136,7 @@ class ImageRepository:
         finally:
             cur.close()
 
+    # видаляє з таблиці в MySQL по id
     def delete_by_id(self, image_id):
         conn = self._get_connection()
         cur = conn.cursor()

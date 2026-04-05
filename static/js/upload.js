@@ -33,56 +33,99 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const handleAndStoreFiles = (files) => {
-        if(!files || files.length === 0) {
-            return
-        }
-        const storedFiles = JSON.parse(localStorage.getItem('uploadedImages')) || [];
+    const handleAndStoreFiles = async (files) => {
+        if (!files || files.length === 0) return;
+
         const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-        const MAX_SIZE_MB = 5;
-        const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
-        let filesAdded = false;
-        let lastFileName = '';
+        const MAX_SIZE_BYTES = 5 * 1024 * 1024;
 
         for (const file of files) {
+            // 1. Перевірка файлу
             if (!allowedTypes.includes(file.type) || file.size > MAX_SIZE_BYTES) {
+                alert(`Файл ${file.name} занадто великий або не того формату!`);
                 continue;
             }
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const fileData = {name: file.name, url: event.target.result};
-                storedFiles.push(fileData);
-                localStorage.setItem('uploadedImages', JSON.stringify(storedFiles));
-                updateTabStyles();
-            };
-            reader.readAsDataURL(file);
-            filesAdded = true;
-            lastFileName = file.name;
-        }
-        if (filesAdded) {
-            if (currentUploadInput) {
-                currentUploadInput.value = `https://sharefile.xyz/${lastFileName}`;
+
+            // 2. Створюємо "коробку" для відправки файлу (FormData)
+            const formData = new FormData();
+            formData.append('file', file); // Ключ 'file' має збігатися з тим, що чекає Python
+
+            try {
+                // 3. ВІДПРАВКА НА СЕРВЕР
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('Файл успішно збережено на сервері:', result);
+                    if (currentUploadInput) {
+                        currentUploadInput.value = `http://localhost:8080/images/${result.filename}`;
+                    }
+                    alert(`Файл ${file.name} успішно завантажено!`);
+                } else {
+                    alert('Помилка сервера: ' + result.error);
+                }
+
+            } catch (error) {
+                console.error('Помилка мережі:', error);
+                alert('Не вдалося зв’язатися з сервером. Перевірте, чи запущений app.py');
             }
-            alert("Files selected successfully! Go to the 'Images' tab to view them.");
         }
     };
 
     if (copyButton && currentUploadInput) {
-        copyButton.addEventListener('click', () => {
-            const textToCopy = currentUploadInput.value;
+    copyButton.addEventListener('click', () => {
+        const textToCopy = currentUploadInput.value;
 
-            if (textToCopy && currentUploadInput) {
-               navigator.clipboard.writeText(textToCopy).then(() => {
-                   copyButton.textContent = 'COPIED!';
-                    setTimeout(() => {
-                        copyButton.textContent = 'COPY';
-                    }, 2000);
-                }).catch(err => {
-                    console.error('File to copy text; ', err);
-                });
+        // 1. Якщо посилання порожнє (наприклад, ще не завантажили файл) — нічого не робимо
+        if (!textToCopy || textToCopy.includes('https://sharefile.xyz/undefined')) {
+            alert("Спочатку завантажте файл!");
+            return;
+        }
+
+        // 2. Спроба скопіювати через сучасний API
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => showSuccess())
+                .catch(err => console.error('Clipboard error:', err));
+        } else {
+            // 3. РЕЗЕРВНИЙ МЕТОД (працює на 192.168... та HTTP)
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+
+            // Робимо поле невидимим
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+            document.body.appendChild(textArea);
+
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) showSuccess();
+            } catch (err) {
+                console.error('Fallback copy failed', err);
             }
-        });
+
+            document.body.removeChild(textArea);
+        }
+    });
+
+    // Окрема функція для візуального ефекту, щоб не дублювати код
+    function showSuccess() {
+        copyButton.textContent = 'COPIED!';
+        copyButton.classList.add('upload_copy_btn--success'); // Можна додати колір у CSS
+        setTimeout(() => {
+            copyButton.textContent = 'COPY';
+            copyButton.classList.remove('upload_copy_btn--success');
+        }, 2000);
     }
+}
 
     if (imagesButton) {
         imagesButton.addEventListener('click', () => {

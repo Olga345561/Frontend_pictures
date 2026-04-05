@@ -3,7 +3,7 @@
 Тонкий HTTP-обробник, що делегує бізнес-логіку сервісам.
 """
 
-import cgi
+
 import json
 import mimetypes
 import os
@@ -147,34 +147,44 @@ class ImageServerHandler(BaseHTTPRequestHandler):
     # --- Request parsing ---
 
     def _parse_upload_form(self):
-        """Parse multipart form and return (file_data, filename, error)."""
         content_type = self.headers.get('Content-Type', '')
 
         if 'multipart/form-data' not in content_type:
-            logger.info('Помилка: невірний Content-Type (%s).', content_type)
-            return None, None, 'Content-Type повинен бути multipart/form-data'
+            return None, None, 'Невірний Content-Type'
+
+        # Отримуємо межу (boundary), яка розділяє дані у формі
+        try:
+            boundary = content_type.split("boundary=")[1].encode()
+        except IndexError:
+            return None, None, 'Не вдалося знайти boundary у запиті'
 
         content_length = int(self.headers.get('Content-Length', 0))
         if content_length > MAX_FILE_SIZE:
-            logger.info('Помилка: файл занадто великий (%d байт).', content_length)
-            return None, None, 'Файл занадто великий. Максимальний розмір: 5 МБ'
+            return None, None, f'Файл занадто великий (макс. {MAX_FILE_SIZE // 1024 // 1024}MB)'
 
+        body = self.rfile.read(content_length)
+
+        # Шукаємо початок і кінець файлу всередині тіла запиту
         try:
-            form = cgi.FieldStorage(
-                fp=self.rfile,
-                headers=self.headers,
-                environ={'REQUEST_METHOD': 'POST', 'CONTENT_TYPE': content_type},
-            )
+            parts = body.split(boundary)
+            for part in parts:
+                if b'filename=' in part:
+                    # Витягуємо назву файлу
+                    header_end = part.find(b'\r\n\r\n')
+                    headers = part[:header_end].decode('utf-8', errors='ignore')
+
+                    for line in headers.split('\r\n'):
+                        if 'filename=' in line:
+                            original_filename = line.split('filename=')[1].strip('"')
+                            break
+
+                    # Самі дані файлу (те, що після заголовків)
+                    file_data = part[header_end + 4:-4]  # Прибираємо зайві переноси
+                    return file_data, original_filename, None
         except Exception as e:
-            logger.info('Помилка: не вдалося розібрати форму (%s).', str(e))
-            return None, None, 'Не вдалося розібрати дані форми'
+            logger.info('Помилка парсингу: %s', str(e))
 
-        file_item = form['file'] if 'file' in form else None
-        if file_item is None or not file_item.filename:
-            logger.info('Помилка: файл не надано.')
-            return None, None, 'Файл не надано'
-
-        return file_item.file.read(), os.path.basename(file_item.filename), None
+        return None, None, 'Файл не знайдено в даних форми'
 
     # --- Response helpers ---
 

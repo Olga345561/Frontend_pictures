@@ -5,17 +5,51 @@
     padding-top: 30px;
     color: #0B0B0B;
 }
-.heder_title {
+.header_title {
     text-align: center;
     font-size: 16px;
+    max-width: 90%;
     width: 700px;
 }
 .header_subtitle {
     text-align: center;
     font-size: 14px;
+    max-width: 90%;
     width: 400px;
     padding-top: 2px;
 }
+
+
+/* кнопки Home та Images*/
+.nav-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Загальний стиль для посилань */
+.nav-link {
+    text-decoration: none;
+    color: #666;
+    font-size: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.3s ease;
+}
+
+/* Ефект при наведенні */
+.nav-link:hover {
+    color: #007bff;
+}
+
+.nav-link__icon {
+    font-size: 1.2em;
+}
+
 .upload_tabs {
     display: flex;
     justify-content: center;
@@ -36,19 +70,29 @@
     color: #698DFAFF;
 }
 .db-gallery {
+    width: 100%;
     max-width: 900px;
     margin: 0 auto;
     padding: 30px 20px;
+    box-sizing: border-box; /* Щоб падінги не роздували ширину */
+}
+
+#gallery-container {
+    width: 100%;
+    overflow-x: auto; /* Дозволяє гортати тільки таблицю вбік */
+    -webkit-overflow-scrolling: touch; /* Плавний скрол на айфонах */
+    margin-bottom: 20px;
 }
 
 .db-gallery__table {
     width: 100%;
+    min-width: 600px; /* Не дає таблиці стиснутися в "кашу" на мобілці */
     border-collapse: collapse;
-    margin-bottom: 20px;
 }
 
 .db-gallery__table th {
-    text-align: left;
+    text-align: center;
+    vertical-align: middle;
     padding: 12px 16px;
     color: #8a96b1;
     font-size: 0.85rem;
@@ -118,4 +162,65 @@
     color: #8a96b1;
     font-size: 1.1rem;
     margin-top: 60px;
+}
+
+/* Стилізація іконки прев'ю */
+.db-gallery__preview-icon {
+    /* Задаємо фіксований розмір, щоб таблиця не розповзлася */
+    width: 50px;       /* Ширина іконки */
+    height: 50px;      /* Висота іконки */
+
+    /* Радіуси та тінь */
+    border-radius: 4px; /* Закруглені кути */
+    object-fit: cover;  /* Щоб картинка не розтягувалася, а обрізалася по розміру */
+    border: 1px solid #ddd; /* Легка рамка */
+    transition: transform 0.2s ease; /* Додамо ефект при наведенні */
+}
+
+/* Ефект при наведенні курсору на прев'ю */
+.db-gallery__preview-icon:hover {
+    transform: scale(1.1); /* Трохи збільшуємо іконку */
+    cursor: zoom-in;       /* Змінюємо курсор */
+}
+
+/* Центрування картинки в комірці */
+.db-gallery__td-preview {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* АДАПТИВНІСТЬ: */
+@media (max-width: 600px) {
+    .nav-container {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        width: 100%;
+        padding: 0;
+    }
+
+    .db-gallery__pagination {
+        gap: 10px; /* Зменшуємо відстань між кнопками */
+        flex-wrap: wrap; /* Якщо не влізуть — перескочать */
+    }
+
+    .db-gallery__page-btn {
+        padding: 6px 12px; /* Трохи менші кнопки */
+        font-size: 0.8rem;
+    }
+
+    .nav-link {
+        font-size: 20px;
+    }
+
+    /* Щоб вкладки Upload/Images не злипалися */
+    .upload_tabs {
+        padding-top: 30px;
+        flex-wrap: wrap;
+    }
+
+    /* Зменшуємо заголовок для мобілок */
+    .header_title {
+        font-size: 18px;
+    }
 }

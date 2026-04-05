@@ -1,20 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Реєструємо гарячі клавіші (Escape/F5) для повернення на головну
+    // Реєструємо гарячі клавіші для повернення
     if (typeof registerKeyboardShortcuts === 'function') {
         registerKeyboardShortcuts('/');
     }
 
-    // Обробка кліку на вкладку Upload
+    // Кліки по вкладках
     document.getElementById('upload-tab-btn')?.addEventListener('click', () => {
-    window.location.href = '/upload.html';    //Повернення на вкладку Upload
+        window.location.href = '/upload.html';
     });
 
-    // Обробка кліку на вкладку Images
     document.getElementById('images-tab-btn')?.addEventListener('click', () => {
         window.location.href = '/images.html';
     });
 
-    // Оновлюємо підсвітку вкладок (якщо функція є в common.js)
     if (typeof updateTabStyles === 'function') {
         updateTabStyles();
     }
@@ -23,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const paginationContainer = document.getElementById('gallery-pagination');
     let currentPage = 1;
 
-    // Функція отримання даних з сервера
+    // 1. Отримання даних
     const fetchAndRender = async (page) => {
         try {
             const response = await fetch('/api/images?page=' + page);
@@ -36,12 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error(error);
             if (container) {
-                container.innerHTML = '<p class="db-gallery__empty">Помилка завантаження даних з бази</p>';
+                container.innerHTML = '<p class="db-gallery__empty">Помилка завантаження даних</p>';
             }
         }
     };
 
-    // Функція малювання таблиці
+    // 2. Малювання таблиці (З ПРЕВ'Ю)
     const renderTable = (items) => {
         if (!container) return;
         container.textContent = '';
@@ -56,7 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const thead = document.createElement('thead');
         const headerRow = document.createElement('tr');
-        ['Назва', 'Оригінал', 'Розмір (КБ)', 'Дата', 'Тип', 'Дія'].forEach(text => {
+        const headers = ['Зображення', 'Назва', 'Оригінал', 'Розмір (КБ)', 'Дата', 'Тип', 'Дія'];
+
+        headers.forEach(text => {
             const th = document.createElement('th');
             th.textContent = text;
             headerRow.appendChild(th);
@@ -68,41 +68,83 @@ document.addEventListener('DOMContentLoaded', () => {
         items.forEach(item => {
             const tr = document.createElement('tr');
 
-            // Назва файлу (посилання)
+            // Комірка Прев'ю
+            const tdPreview = document.createElement('td');
+            tdPreview.className = 'db-gallery__td-preview';
+            const imgPreview = document.createElement('img');
+            imgPreview.src = '/images/' + item.filename;
+            imgPreview.alt = item.original_name;
+            imgPreview.className = 'db-gallery__preview-icon';
+            tdPreview.appendChild(imgPreview);
+            tr.appendChild(tdPreview);
+
+            // Комірка Назва (посилання)
             const tdLink = document.createElement('td');
             const a = document.createElement('a');
             a.href = '/images/' + item.filename;
             a.target = '_blank';
             a.textContent = item.filename;
             tdLink.appendChild(a);
+            tr.appendChild(tdLink);
 
-            // Інші колонки
+            // Оригінальна назва
             const tdOriginal = document.createElement('td');
             tdOriginal.textContent = item.original_name;
+            tr.appendChild(tdOriginal);
 
+            // Розмір
             const tdSize = document.createElement('td');
             tdSize.textContent = (item.size / 1024).toFixed(1);
+            tr.appendChild(tdSize);
 
+            // Дата
             const tdDate = document.createElement('td');
             tdDate.textContent = item.upload_time;
+            tr.appendChild(tdDate);
 
+            // Тип
             const tdType = document.createElement('td');
             tdType.textContent = item.file_type;
+            tr.appendChild(tdType);
 
-            // Кнопка видалення
+            // Дія (Видалити)
             const tdAction = document.createElement('td');
             const btn = document.createElement('button');
             btn.className = 'db-gallery__delete-btn';
             btn.textContent = 'Видалити';
+
             btn.onclick = async () => {
-                if (confirm('Видалити це зображення?')) {
-                    await fetch('/delete/' + item.id, { method: 'POST' });
-                    fetchAndRender(currentPage);
+                if (confirm(`Видалити зображення ${item.original_name}?`)) {
+                    try {
+                        const response = await fetch('/delete/' + item.id, { method: 'POST' });
+
+                        if (response.ok) {
+                            // --- ПРАЦЮЄМО З LOCALSTORAGE ---
+                            const deleteData = {
+                                fileName: item.original_name,
+                                dbId: item.id,
+                                date: new Date().toLocaleString()
+                            };
+
+                            // Зберігаємо об'єкт у вигляді рядка
+                            localStorage.setItem('lastDeleted', JSON.stringify(deleteData));
+
+                            // Викликаємо функцію для відображення напису (додамо її нижче)
+                            showDeleteLog();
+                            fetchAndRender(currentPage);
+                        } else {
+                            alert('Не вдалося видалити файл на сервері. Спробуйте пізніше.');
+                        }
+                    } catch (error) {
+                        console.error('Помилка видалення:', error);
+                        alert('Помилка мережі. Перевірте з’єднання.');
+                    }
                 }
             };
-            tdAction.appendChild(btn);
 
-            tr.append(tdLink, tdOriginal, tdSize, tdDate, tdType, tdAction);
+            tdAction.appendChild(btn);
+            tr.appendChild(tdAction);
+
             tbody.appendChild(tr);
         });
 
@@ -110,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(table);
     };
 
-    // Пагінація (залишаємо як було, вона створює елементи динамічно)
+    // 3. ФУНКЦІЯ ПАГІНАЦІЇ
     const renderPagination = (page, totalPages) => {
         if (!paginationContainer) return;
         paginationContainer.textContent = '';
@@ -138,4 +180,25 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     fetchAndRender(1);
+
+    const showDeleteLog = () => {
+        const rawData = localStorage.getItem('lastDeleted');
+        if (!rawData) return;
+
+        const data = JSON.parse(rawData);
+        let logBlock = document.getElementById('delete-info-display');
+
+        if (!logBlock) {
+            logBlock = document.createElement('div');
+            logBlock.id = 'delete-info-display';
+            // Стиль, щоб це виглядало як лог
+            logBlock.style.cssText = 'margin-top: 20px; padding: 10px; background: #eee; border-radius: 5px; color: #333;';
+            container.parentElement.appendChild(logBlock);
+        }
+
+        logBlock.innerHTML = `<strong>Останнє видалення:</strong> ${data.fileName} (ID: ${data.dbId}) о ${data.date}`;
+    };
+
+    // Обов'язково викликаємо її тут, щоб при оновленні сторінки напис залишався
+    showDeleteLog();
 });

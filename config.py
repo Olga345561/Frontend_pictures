@@ -21,7 +21,7 @@ DB_PASSWORD = os.environ.get('DB_PASSWORD', '01@02@1990')
 # Upload limits
 MAX_FILE_SIZE = int(os.environ.get('MAX_FILE_SIZE', str(5 * 1024 * 1024)))  # 5 MB
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif'}
-ITEMS_PER_PAGE = int(os.environ.get('ITEMS_PER_PAGE', '5'))
+ITEMS_PER_PAGE = int(os.environ.get('ITEMS_PER_PAGE', '10'))
 
 # Logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
