@@ -43,10 +43,8 @@ class ImageServerHandler(BaseHTTPRequestHandler):
         elif any(path.startswith(prefix) for prefix in ['/js/', '/img/', '/file_style_css/', '/static/']):
             # 1. Прибираємо /static/ та початковий слеш
             rel_path = path.replace('/static/', '', 1).lstrip('/')
-            # 2. ВАЖЛИВО: Замінюємо всі прямі слеші на ті, що любить ваша ОС (Windows)
-            rel_path = rel_path.replace('/', os.sep)
-            # 3. Будуємо повний шлях
-            full_path = os.path.join(os.path.abspath(STATIC_DIR), rel_path)
+            # 2. Будуємо повний шлях
+            full_path = os.path.join(STATIC_DIR, rel_path)
             print(f"DEBUG: Спроба відкрити: {full_path}")
             self._serve_static(full_path)
         elif path.startswith('/images/'):

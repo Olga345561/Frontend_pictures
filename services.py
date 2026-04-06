@@ -1,4 +1,4 @@
-"""Business logic — ImageService coordinates validation, file I/O, and DB."""
+"""Бізнес-логіка — ImageService координує перевірку, файловий ввід/вивід та базу даних."""
 
 import io
 import logging

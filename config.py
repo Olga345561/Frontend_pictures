@@ -11,8 +11,8 @@ IMAGES_DIR = os.environ.get('IMAGES_DIR', 'images')
 LOGS_DIR = os.environ.get('LOGS_DIR', 'logs')
 STATIC_DIR = os.environ.get('STATIC_DIR', 'static')
 
-# Database host.docker.internal
-DB_HOST = os.environ.get('DB_HOST', 'localhost')
+# Database
+DB_HOST = os.environ.get('DB_HOST', 'db')
 DB_PORT = os.environ.get('DB_PORT', '3306')
 DB_NAME = os.environ.get('DB_NAME', 'images_db')
 DB_USER = os.environ.get('DB_USER', 'root')

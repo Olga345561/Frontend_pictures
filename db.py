@@ -1,19 +1,16 @@
-"""Database layer — ImageRepository for all image CRUD operations."""
+"""Database layer — ImageRepository for all image CRUD operations (PostgreSQL version)."""
 
 import logging
 import threading
 import time
-
-import mysql.connector
+import psycopg2
 
 logger = logging.getLogger('image_server')
 
-
 _thread_local = threading.local()
 
-
 class ImageRepository:
-    """Single-responsibility: all database operations for images."""
+    """Single-responsibility: all database operations for images using PostgreSQL."""
 
     def __init__(self, host, port, database, user, password):
         self._config = {
@@ -25,32 +22,29 @@ class ImageRepository:
         }
 
     def _get_connection(self):
-        # Отримуємо з'єднання з поточного потоку
         conn = getattr(_thread_local, 'connection', None)
-
-        if conn is None or not conn.is_connected():
-            conn = mysql.connector.connect(**self._config)
+        if conn is None or conn.closed:
+            conn = psycopg2.connect(**self._config)
             conn.autocommit = False
             _thread_local.connection = conn
         return conn
 
     def close_connection(self):
         conn = getattr(_thread_local, 'connection', None)
-        # перевіряємо чи з'єднання існує та активне
-        if conn and conn.is_connected():
+        if conn and not conn.closed:
             conn.close()
             _thread_local.connection = None
             logger.info("З'єднання з БД закрито.")
 
-    # створення таблиці в БД
     def init_table(self, retries=5):
         for attempt in range(1, retries + 1):
             try:
                 conn = self._get_connection()
                 cur = conn.cursor()
+                # Змінено AUTO_INCREMENT на SERIAL для PostgreSQL
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS images (
-                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        id SERIAL PRIMARY KEY,
                         filename VARCHAR(255) NOT NULL,
                         original_name VARCHAR(255) NOT NULL,
                         size INT NOT NULL,
@@ -63,7 +57,6 @@ class ImageRepository:
                 logger.info('Таблицю images ініціалізовано.')
                 return
             except Exception as e:
-                # Очищуємо з'єднання при помилці, щоб наступна спроба була "з чистого аркуша"
                 if hasattr(_thread_local, 'connection'):
                     del _thread_local.connection
                 logger.info('Спроба %d підключення до БД не вдалася: %s', attempt, str(e))
@@ -72,7 +65,6 @@ class ImageRepository:
                 else:
                     raise
 
-    # підрахунок картинок
     def count(self):
         conn = self._get_connection()
         cur = conn.cursor()
@@ -82,7 +74,6 @@ class ImageRepository:
         finally:
             cur.close()
 
-    # витягує з БД та сортує картинки на сторінці
     def list_page(self, limit, offset):
         conn = self._get_connection()
         cur = conn.cursor()
@@ -96,7 +87,6 @@ class ImageRepository:
         finally:
             cur.close()
 
-    # збереження картинок до БД
     def insert(self, filename, original_name, size, file_type):
         conn = self._get_connection()
         cur = conn.cursor()
@@ -112,7 +102,6 @@ class ImageRepository:
         finally:
             cur.close()
 
-    # видалення з БД
     def delete_by_filename(self, filename):
         conn = self._get_connection()
         cur = conn.cursor()
@@ -125,7 +114,6 @@ class ImageRepository:
         finally:
             cur.close()
 
-    # шукає в таблиці MySQL по імені
     def find_filename_by_id(self, image_id):
         conn = self._get_connection()
         cur = conn.cursor()
@@ -136,7 +124,6 @@ class ImageRepository:
         finally:
             cur.close()
 
-    # видаляє з таблиці в MySQL по id
     def delete_by_id(self, image_id):
         conn = self._get_connection()
         cur = conn.cursor()

@@ -2,8 +2,6 @@ services:
   app:
     build: .
     container_name: image-server-app
-    ports:
-      - "8000:8000"
     volumes:
       - ./app.py:/app/app.py
       - ./static:/app/static
@@ -30,8 +28,34 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./static:/usr/share/nginx/html:ro
       - ./images:/images:ro
+    command: >
+      /bin/sh -c "printf 'server {
+      listen 80;
+      client_max_body_size 10M;
+      location / {
+          root /usr/share/nginx/html;
+          index index.html;
+          try_files $$uri $$uri.html $$uri/ =404;
+      }
+      
+      location /images-list {
+                proxy_pass http://app:8080;
+            }
+            location /api/ {
+                proxy_pass http://app:8080;
+            }
+            location /upload {
+                proxy_pass http://app:8080;
+            }
+            location /delete/ {
+                proxy_pass http://app:8080;
+            }
+            location /images/ {
+                alias /images/;
+            }
+            }' > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
     depends_on:
       - app
     restart: unless-stopped
@@ -48,11 +72,24 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
       timeout: 5s
       retries: 5
     restart: unless-stopped
 
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: image-server-pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    restart: unless-stopped
+
 volumes:
   db_data:
+
